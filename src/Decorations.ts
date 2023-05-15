@@ -73,7 +73,7 @@ export function deleteDecoratedText(editor: monaco.editor.IStandaloneCodeEditor,
 
     for (let decoration of editor.getModel()!.getAllDecorations().filter(x => collection.has(x))) {
         // -1 because we want to be *before* the line; decorations use afterLineIndex
-        let textZone = new TextZone(decoration.range.startLineNumber - 1, decoration.range.endLineNumber - decoration.range.startLineNumber - 1);
+        let textZone = new TextZone(decoration.range.startLineNumber - 1, decoration.range.endLineNumber - decoration.range.startLineNumber + 1);
         createEditor(editor.getModel()?.getValueInRange(decoration.range).split("\n"), textZone);
 
         viewZones.push(textZone);

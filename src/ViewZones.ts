@@ -89,7 +89,8 @@ export function insertInterspersedText(editor: monaco.editor.IStandaloneCodeEdit
 
     return viewZones.map(viewZone => {
         return {
-            range: { startLineNumber: viewZone.afterLineNumber, endLineNumber: viewZone.afterLineNumber, startColumn: 0, endColumn: 0 },
+            // + 1 because we want to insert AFTER that line.
+            range: { startLineNumber: viewZone.afterLineNumber + 1, endLineNumber: viewZone.afterLineNumber + 1, startColumn: 0, endColumn: 0 },
             text: viewZone.editor.getModel()!.getValue() + "\n"  // Last newline is intentionally left out of the patch editor
         };
     });
