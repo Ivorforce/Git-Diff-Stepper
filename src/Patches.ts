@@ -1,6 +1,10 @@
 // Note: Idxs start at 1
 export const diffHeaderRegexInline = /@@ -(\d+)(?:,(\d+))? \+(\d+)(?:,(\d+))? @@/;
 
+export enum PatchDirection {
+    Forwards, Backwards
+}
+
 export default class Patch {
     // Starts at 1.
     public oldFilePos: number;

@@ -1,4 +1,4 @@
-export function repeat(f: Function, delayMs: number, times: number) {
+export function repeat(delayMs: number, times: number, f: Function) {
     f(0);
     let callCount = 1;
     var repeater = setInterval(function () {
@@ -11,7 +11,7 @@ export function repeat(f: Function, delayMs: number, times: number) {
     }, delayMs);
 }
 
-export function transition(f: Function, fps: number, totalTime: number) {
+export function transition(fps: number, totalTime: number, f: Function) {
     const times = totalTime * fps;
-    repeat((callCount) => f((callCount + 1) / times), 1000 / fps, times);
+    repeat(1000 / fps, times, (callCount) => f((callCount + 1) / times));
 }

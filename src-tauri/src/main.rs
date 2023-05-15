@@ -14,18 +14,21 @@ fn git_diff(file_path: String, before_version: String, after_version: String) ->
     commands::get_diff(&PathBuf::from(file_path), &before_version, &after_version)
 }
 
+#[tauri::command(rename_all = "snake_case")]
+fn git_show(file_path: String, version: String) -> String {
+    commands::get_file_at_version(&PathBuf::from(file_path), &version)
+}
+
 #[derive(Clone, Serialize)]
 pub struct FileInfo {
     pub file_path: PathBuf,
-    pub first_version_text: String,
     pub commit_list: Vec<String>,
 }
 
 fn open_file(file_path: &PathBuf, window: &Window) -> Result<()> {
     let commit_list = commands::get_commit_list(file_path);
-    let first_version_text = commands::get_file_at_version(file_path, &commit_list[0]);
 
-    window.emit_all("openFile", FileInfo { file_path: file_path.clone(), first_version_text, commit_list })?;
+    window.emit_all("openFile", FileInfo { file_path: file_path.clone(), commit_list })?;
 
     Ok(())
 }
@@ -82,7 +85,7 @@ fn main() {
               _ => {}
             }
           })      
-        .invoke_handler(tauri::generate_handler![git_diff])
-        .run(tauri::generate_context!())
+          .invoke_handler(tauri::generate_handler![git_diff, git_show])
+          .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
