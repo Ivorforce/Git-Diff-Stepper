@@ -16,6 +16,8 @@ export class MonacoLogController {
 
     currentVersion: string;
     nextVersion?: string;
+
+    lastUpdate: number = 0;
     
     constructor(editor: monaco.editor.IStandaloneCodeEditor, createEditor: Function) {
         this.patchController = new MonacoPatchController(editor, createEditor);
@@ -37,6 +39,12 @@ export class MonacoLogController {
         if (!this.commitList) {
             return;
         }
+
+        // TODO For now, this is a failsafe because animations are not mixable.
+        if (Date.now() < this.lastUpdate + 500) {
+            return
+        }
+        this.lastUpdate = Date.now()
 
         if (this.nextVersion) {
             // We have a version planned! Let's apply or discard it.
