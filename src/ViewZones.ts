@@ -27,10 +27,11 @@ export function gatherViewzones(patches: Patch[], direction: PatchDirection, cre
     let viewZones: TextZone[] = [];
 
     for (let patch of patches) {
-        if (patch.addCount > 0) {
+        const height = direction == PatchDirection.Forwards ? patch.addCount : patch.delCount;
+
+        if (height > 0) {
             // - 1 because we want to insert *before* the line - viewZones use "afterLineNumber".
             const start = direction == PatchDirection.Forwards ? patch.oldFilePos + patch.delCount - 1 : patch.newFilePos - 1;
-            const height = direction == PatchDirection.Forwards ? patch.addCount : patch.delCount;
 
             let textZone = new TextZone(start, height); 
             createEditor(direction == PatchDirection.Forwards ? patch.addedLines : patch.removedLines, textZone);
