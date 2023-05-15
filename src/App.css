@@ -25,12 +25,12 @@ body {
 }
 
 .fadeOut {
-  animation: fadeout ease 0.5s;
+  animation: fadeout ease 0.3s;
   animation-fill-mode: forwards;
 }
 
 .fadeIn {
-  animation: fadein ease 0.5s;
+  animation: fadein ease 0.3s;
   animation-fill-mode: forwards;
 }
 

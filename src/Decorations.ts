@@ -28,9 +28,10 @@ export function transitionInDecorations(editor: monaco.editor.IStandaloneCodeEdi
     let fadeInDecorations: monaco.editor.IModelDeltaDecoration[] = decorations.map(x => {
         return {
             range: x.range,
-            options: { ...x.options, className: (x.options.className ?? "").replace("fadeIn", "") },
+            options: { ...x.options, className: (x.options.className ?? "") + " fadeIn" },
         }
     });
+    console.log(fadeInDecorations);
 
     collection.set(fadeInDecorations);
     // TODO Adjustable time; requires css tho
@@ -49,7 +50,7 @@ export function transitionOutDecorations(editor: monaco.editor.IStandaloneCodeEd
         .map(x => {
             return {
                 range: x.range,
-                options: { ...x.options, className: (x.options.className ?? "").replace("fadeOut", "") },
+                options: { ...x.options, className: (x.options.className ?? "") + " fadeOut" },
             }
         })
 
