@@ -23,7 +23,11 @@ export class MonacoLogController {
 
     async setNextVersion(nextVersion: string, direction: PatchDirection) {
         this.nextVersion = nextVersion;
-        const diff = await invoke('git_diff', { file_path: this.filePath, before_version: this.currentVersion, after_version: nextVersion }) as string;
+        
+        let before_version = direction == PatchDirection.Forwards ? this.currentVersion : nextVersion;
+        let after_version = direction == PatchDirection.Forwards ? nextVersion : this.currentVersion;
+
+        const diff = await invoke('git_diff', { file_path: this.filePath, before_version: before_version, after_version: after_version }) as string;
         const patches = parsePatches(diff);
 
 		this.patchController.setPatches(patches, direction);
