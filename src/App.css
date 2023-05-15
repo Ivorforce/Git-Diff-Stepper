@@ -11,3 +11,19 @@
 .addLine {
   background: rgba(0, 255, 0, 0.15);
 }
+
+.expandable-container {
+  overflow: hidden;
+}
+
+.expandable {
+  transition-property: all; 
+	transition-duration: 0.2s;
+
+	transform: rotateX(-90deg);
+	transform-origin: top; 
+}
+
+.expandable.expanded {
+	transform: rotateX(0deg); 
+}

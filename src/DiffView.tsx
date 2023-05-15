@@ -1,5 +1,5 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
+import ReactDOM from "react-dom/client";
 import { renderToStaticMarkup } from "react-dom/server"
 import { readTextFile } from '@tauri-apps/api/fs';
 
@@ -7,14 +7,16 @@ import * as monaco from 'monaco-editor';
 import Editor, { Monaco } from '@monaco-editor/react';
 import { useEffect } from 'react';
 import Patch from './patch';
+import { repeat, transition } from './Repeater';
+import { smoothstep_one } from './Mafs';
 
 class EditorWebviewZone implements monaco.editor.IViewZone {
     readonly domNode: HTMLElement;
     readonly afterLineNumber: number;
     readonly afterColumn: number;
-    readonly heightInLines: number;
+    heightInLines: number;
 
-    private _id?: string;
+    _id?: string;
 
     constructor(
         domNode: HTMLElement,
@@ -81,6 +83,10 @@ export class DiffView extends React.Component<DiffViewProps> {
     setDiff(diff: Patch[]) {
         this.currentDiff = diff;
 
+        this.viewZones.forEach(x => x.dispose());
+        this.viewZones = [];
+        let zonesAndHeight: [EditorWebviewZone, number][] = [];
+
         let deleteDecorations: monaco.editor.IModelDeltaDecoration[] = [];
 
         for (let patch of diff) {
@@ -95,58 +101,85 @@ export class DiffView extends React.Component<DiffViewProps> {
                 }
 
             if (patch.addCount > 0) {
-                async function handleEditorDidMount(editor: monaco.editor.IStandaloneCodeEditor, monaco: Monaco) {
-                    monaco.editor.setModelLanguage(editor!.getModel()!, "python");  // FIXME
-                    editor!.getModel()!.setValue(patch.addedLines.join("\n"));
+                const div = this.createEditor(patch.addedLines, "addLine");
 
-                    editor.createDecorationsCollection([{
-                        range: new monaco.Range(0, 0, patch.addCount, 0),
-                        options: {
-                          isWholeLine: true,
-                          className: 'addLine',
-                        }
-                      }])
-                };
-                
-                const secondEditor = <Editor
-                    onMount={handleEditorDidMount}
-                    theme="vs-dark"
-                    options={{
-                        readOnly: true,
-        
-                        glyphMargin: false,
-                        folding: false,
-                        lineNumbers: "off",
-                        lineDecorationsWidth: 0,
-                        lineNumbersMinChars: 0,
-        
-                        minimap: { enabled: false },
-                        renderLineHighlight: "none",
-        
-                        scrollBeyondLastLine: false,
-                        scrollbar: {
-                            vertical:"hidden",
-                            horizontal: "hidden",
-                            handleMouseWheel:false,
-                        },
-                    }}
-                />;
-        
-                const div = document.createElement("div");
-                ReactDOM.render(secondEditor, div);
-        
-                const viewZone = new EditorWebviewZone(div, this.editor!, patch.oldFilePos + patch.delCount - 1, patch.addCount);
+                const fullHeight = patch.addCount;
+                const viewZone = new EditorWebviewZone(div, this.editor!, patch.oldFilePos + patch.delCount - 1, 0);
                 this.viewZones.push(viewZone);
+                zonesAndHeight.push([viewZone, patch.addCount]);
             }
         }
 
+        let editor = this.editor!;
+        transition(
+            (ratio: number) => {
+                editor.changeViewZones(accessor => {
+                    for (let x of zonesAndHeight) {
+                        x[0].heightInLines = (smoothstep_one(ratio)) * x[1]
+                        accessor.layoutZone(x[0]._id!);
+                    }
+                });
+            },
+            60, 0.2
+        )
+
         this.deleteDecorations.set(deleteDecorations);
+    }
+
+    createEditor(lines: string[], className: string) {
+        async function handleEditorDidMount(editor: monaco.editor.IStandaloneCodeEditor, monaco: Monaco) {
+            monaco.editor.setModelLanguage(editor!.getModel()!, "python");  // FIXME
+            editor!.getModel()!.setValue(lines.join("\n"));
+
+            editor.createDecorationsCollection([{
+                range: new monaco.Range(0, 0, lines.length, 0),
+                options: {
+                  isWholeLine: true,
+                  className: className,
+                }
+              }])
+            editor.getDomNode()?.parentElement?.classList.add("expanded")
+        };
+        
+        const secondEditor = <Editor
+            onMount={handleEditorDidMount}
+            theme="vs-dark"
+            options={{
+                readOnly: true,
+
+                glyphMargin: false,
+                folding: false,
+                lineNumbers: "off",
+                lineDecorationsWidth: 0,
+                lineNumbersMinChars: 0,
+
+                minimap: { enabled: false },
+                renderLineHighlight: "none",
+
+                scrollBeyondLastLine: false,
+                scrollbar: {
+                    vertical:"hidden",
+                    horizontal: "hidden",
+                    handleMouseWheel:false,
+                },
+            }}
+            className='expandable'
+        />;
+
+        const div = document.createElement("div");        
+        const root = ReactDOM.createRoot(div);
+        root.render(secondEditor);
+
+        return div;
     }
 
     applyCurrentDiff() {
         if (!this.currentDiff) {
             return;
         }
+
+        this.viewZones.forEach(x => x.dispose());
+        this.viewZones = [];
 
         let doc = this.editor!.getModel()!;
         let edits: monaco.editor.IIdentifiedSingleEditOperation[] = []; 
@@ -165,7 +198,7 @@ export class DiffView extends React.Component<DiffViewProps> {
                         ? new monaco.Range(removeStart, 0, removeStart + patch.delCount, 0)
                         : new monaco.Range(removeStart, 0, removeStart + patch.delCount - 1, doc.getLineLength(removeStart + patch.delCount - 1)),
                     text: replacement
-            });
+                });
             }
             else {
                 edits.push({
@@ -175,14 +208,46 @@ export class DiffView extends React.Component<DiffViewProps> {
             }
 		}
 
-        this.editor?.executeEdits(null, edits);
-        this.editor?.pushUndoStop();
+        this.editor!.executeEdits(null, edits);
+        this.editor!.pushUndoStop();
+
+        // Transition Out
+
+        let zonesAndHeight: [EditorWebviewZone, number][] = [];
+
+        for (let patch of this.currentDiff) {
+            if (patch.delCount > 0) {
+                const div = this.createEditor(patch.removedLines, "deleteLine");
+
+                // -1 because view zones are inserted below the line
+                const viewZone = new EditorWebviewZone(div, this.editor!, patch.newFilePos - 1, 0);
+                this.viewZones.push(viewZone);
+                zonesAndHeight.push([viewZone, patch.delCount]);
+            }
+        }
+
+        let editor = this.editor!;
+        transition(
+            (ratio: number) => {
+                editor.changeViewZones(accessor => {
+                    if (ratio >= 0.99) {
+                        for (let x of zonesAndHeight) {
+                            accessor.removeZone(x[0]._id!);
+                        }    
+                    }
+                    else {
+                        for (let x of zonesAndHeight) {
+                            x[0].heightInLines = (1 - smoothstep_one(ratio)) * x[1]
+                            accessor.layoutZone(x[0]._id!);
+                        }    
+                    }
+                });
+            },
+            60, 0.2
+        )
+
 
         this.currentDiff = [];
-
-        // TODO Animate Away
-        this.viewZones.forEach(x => x.dispose());
-        this.viewZones = [];
         this.deleteDecorations.clear();
     }
 }

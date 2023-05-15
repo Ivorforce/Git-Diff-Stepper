@@ -54,9 +54,6 @@ export function parsePatches(diff: string) : Patch[] {
         let addedLines = lines.slice(diffPatchAddStart, diffPatchAddStart + addCount).map(x => x.slice(1));
         let removedLines = lines.slice(diffPatchDelStart, diffPatchDelStart + delCount).map(x => x.slice(1));
 
-        console.log(infoResult);
-        console.log(infoResult[1]);
-        console.log(oldFilePos);
         patches.push({
             oldFilePos: oldFilePos,
             delCount: delCount,
