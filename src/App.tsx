@@ -21,7 +21,8 @@ function createPatchEditor(text: string, language: string, textZone: TextZone, d
 
         if (decorationClassName) {
             editor.createDecorationsCollection([{
-                range: new monaco.Range(0, 0, editor.getModel()?.getLineCount, 0),
+                range: new monaco.Range(0, 0, 9999, 0),
+                // range: new monaco.Range(0, 0, editor.getModel()?.getLineCount, 0),  // For some reason this doesn't work right now.
                 options: { isWholeLine: true, className: decorationClassName }
             }]);
         }
