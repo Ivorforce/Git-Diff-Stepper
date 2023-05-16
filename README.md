@@ -29,7 +29,6 @@ To switch to the language manually, use the command palette.
 - When resetting text for the next diff, add some kind of white flash to show that something happened.
 - When TextZones spawn because of disappearing text, they flash black a bit.
 - Animations and style ought to be configurable.
-- The file ought to be saveable, for quick test iteration.
 - Support for ruler markers.
 - Custom theme support (akin to language support, see [this repo](https://github.com/Nishkalkashyap/monaco-vscode-textmate-theme-converter#monaco-vscode-textmate-theme-converter))
 - A way to step directly to some commit.
