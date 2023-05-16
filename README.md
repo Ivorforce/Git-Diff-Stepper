@@ -8,7 +8,7 @@ It is technically a continuation of [VSCode Git Diff Stepper](https://github.com
 
 ## Controls
 
-- Select a file using File -> Open
+- Select a file using File -> Open. The file must be tracked by git, and should have multiple commits.
 - `cmd / ctrl` + `left` or `right` arrow keys move through iterations.
 - `f1` to launch the command palette.
 
@@ -31,5 +31,6 @@ To switch to the language manually, use the command palette.
 - Animations and style ought to be configurable.
 - Language selection should prompt instead of using the selection.
 - The file ought to be saveable, for quick test iteration.
-- Add support for ruler markers
+- Support for ruler markers.
 - Custom theme support (akin to language support, see [this repo](https://github.com/Nishkalkashyap/monaco-vscode-textmate-theme-converter#monaco-vscode-textmate-theme-converter))
+- A way to step directly to some commit.
