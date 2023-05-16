@@ -27,7 +27,8 @@
         "scope": [
           "$APPDATA/*",
           "$APPDATA/tmlanguages/*",
-          "$RESOURCE/onigasm.wasm"
+          "$RESOURCE/onigasm.wasm",
+          "$RESOURCE/themes/*"
         ]
       },
       "dialog": {
@@ -50,7 +51,8 @@
       "identifier": "de.ivorius.gitdiffstepper",
       "targets": "all",
       "resources": [
-        "onigasm.wasm"
+        "onigasm.wasm",
+        "themes/*"
       ]
     },
     "security": {

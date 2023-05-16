@@ -34,7 +34,6 @@ export async function setup() {
 
     const contents = await readBinaryFile("onigasm.wasm", { dir: BaseDirectory.Resource });
     await loadWASM(contents.buffer) // See https://www.npmjs.com/package/onigasm#light-it-up
-    console.log("6");
 
     const registry = new Registry({
         getGrammarDefinition: async (scopeName) => {

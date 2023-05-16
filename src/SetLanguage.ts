@@ -5,7 +5,6 @@ export function addSetLanguageActions(editor: monaco.editor.IStandaloneCodeEdito
         editor.addAction({
             id: `setLanguage-${language.id}`,
             label: `Set language to ${language.id}`,
-            contextMenuGroupId: "navigation",  // eh
             run: (editor: monaco.editor.ICodeEditor, arg: string) => {
                 monaco.editor.setModelLanguage(editor.getModel()!, language.id);
             }

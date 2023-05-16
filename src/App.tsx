@@ -29,7 +29,7 @@ function createPatchEditor(text: string, language: string, textZone: TextZone, d
 
     const secondEditor = <Editor
         onMount={handleEditorDidMount}
-        theme="vs-dark"
+        theme="vs-dark-plus"
 
         language={language}
         value={text}
@@ -88,7 +88,7 @@ function App() {
         height="calc(100vh - 30px)"  // TODO This shouldn't be here but otherwise the size is 5px
         width="calc(100vw - 30px)"
         onMount={handleEditorDidMount}
-        theme="vs-dark"
+        theme="vs-dark-plus"
         options={{
             minimap: { enabled: false },
             renderLineHighlight: "none",
