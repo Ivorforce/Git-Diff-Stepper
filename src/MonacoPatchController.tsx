@@ -20,15 +20,6 @@ export class MonacoPatchController {
         this.decorations = editor.createDecorationsCollection();
 
         editor.onDidChangeCursorSelection((event) => this.selectEditor(editor, event));
-        editor.addAction({
-            id: "setLanguage",
-            label: "Set Language (to selection text)",
-            contextMenuOrder: 0,
-            run: (editor: monaco.editor.ICodeEditor, arg: string) => {
-                let language = editor.getModel()?.getValueInRange(editor.getSelection()!);
-                monaco.editor.setModelLanguage(editor.getModel()!, language!);
-            }
-        });
     }
 
     setContents(contents: string) {

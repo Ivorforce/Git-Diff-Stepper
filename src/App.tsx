@@ -9,6 +9,7 @@ import { emit, listen } from '@tauri-apps/api/event'
 import { useEffect } from 'react';
 import Editor from "@monaco-editor/react";
 import { TextZone } from './ViewZones';
+import { addSetLanguageActions } from './SetLanguage';
 
 loader.config({ monaco });
 
@@ -78,6 +79,7 @@ function App() {
         let logController_ = new MonacoLogController(editor, createPatchEditor);
         logController = logController_;
 
+        addSetLanguageActions(editor);
         editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyMod.Alt | monaco.KeyCode.LeftArrow, () => logController_.prev());
         editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyMod.Alt | monaco.KeyCode.RightArrow, () => logController_.next());
     }
