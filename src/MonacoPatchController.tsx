@@ -101,6 +101,7 @@ export class MonacoPatchController {
         edits.push(...addEdits);
 
         this.editor!.executeEdits(null, edits);
+        this.editor.pushUndoStop();
 
         readdDecorationsAndTransitionOut(this.decorations, this.viewZones, edits);
         readdViewzonesAndTransitionOut(this.editor, deleteViewZones, edits);
