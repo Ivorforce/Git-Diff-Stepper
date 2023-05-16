@@ -1,8 +1,8 @@
 [package]
-name = "tauri-diff-stepper"
-version = "0.0.0"
-description = "A Tauri App"
-authors = ["you"]
+name = "git-diff-stepper"
+version = "0.1.0"
+description = "Lets you step through a file's git log with animations."
+authors = ["Lukas Tenbrink"]
 license = ""
 repository = ""
 edition = "2021"
