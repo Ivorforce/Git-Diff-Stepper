@@ -46,6 +46,13 @@ export class MonacoLogController {
         }
         this.lastUpdate = Date.now()
 
+        const expectedVersion = await invoke('git_show', { file_path: this.filePath, version: this.currentVersion }) as string;
+        if (this.patchController.editor.getValue() !== expectedVersion) {
+            // Spend a step fixing the text first.
+            this.patchController.setContents(expectedVersion);
+            return
+        }
+
         if (this.nextVersion) {
             // We have a version planned! Let's apply or discard it.
             if (this.patchController.currentPatchDirection == direction) {

@@ -17,6 +17,9 @@ It is technically a continuation of [VSCode Git Diff Stepper](https://github.com
 
 ## Roadmap
 
-- Disappearing view zones don't spawn fadeout decorations (because their positions are invalidated during the edit).
-- Wait on new view zones to be created before starting transitions to avoid flash of loading indicators.
-- If the file changed before loadign a patch, revert file as an extra transition.
+- When fixing text, add some kind of white flash to show that something happened.
+- When TextZones spawn because of disappearing text, they flash black a bit.
+- Language isn't guessed yet.
+- Animations and style ought to be configurable.
+- Language support ought to be configurable.
+- The file ought to be saveable, for quick test iteration.
