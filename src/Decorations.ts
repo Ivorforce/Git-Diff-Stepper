@@ -67,32 +67,28 @@ export function expandRange(range: monaco.IRange, fullLine: boolean): monaco.IRa
     } : range;
 }
 
-export function deleteDecoratedText(editor: monaco.editor.IStandaloneCodeEditor, collection: monaco.editor.IEditorDecorationsCollection): [monaco.editor.IIdentifiedSingleEditOperation[], [monaco.Range, string][]] {
+export function deleteDecoratedText(editor: monaco.editor.IStandaloneCodeEditor, createEditor: Function, collection: monaco.editor.IEditorDecorationsCollection): [monaco.editor.IIdentifiedSingleEditOperation[], TextZone[]] {
     let edits: monaco.editor.IIdentifiedSingleEditOperation[] = [];
-    let viewzoneProtos: [monaco.Range, string][] = [];
+    let viewzones: TextZone[] = [];
 
     for (let decoration of editor.getModel()!.getAllDecorations().filter(x => collection.has(x))) {
         let actualRange = expandRange(decoration.range, decoration.options.isWholeLine ?? false);
         edits.push({ range: actualRange, text: "" });
-        viewzoneProtos.push([decoration.range, editor.getModel()!.getValueInRange(actualRange)]);
+
+        let text = editor.getModel()!.getValueInRange(actualRange);
+        const lineCount = decoration.range.endLineNumber - decoration.range.startLineNumber + 1;
+        let textZone = new TextZone(decoration.range.startLineNumber - 1, lineCount);
+        createEditor(text.split("\n"), textZone);
+        viewzones.push(textZone);
     }
 
-    return [edits, viewzoneProtos]
+    return [edits, viewzones]
 }
 
-export function readdViewzonesAndTransitionOut(editor: monaco.editor.IStandaloneCodeEditor, protos: [monaco.Range, string][], createEditor: Function, edits: monaco.editor.IIdentifiedSingleEditOperation[]) {
-    let viewZones: TextZone[] = protos.map(x => {
-        let [range, text] = x;
-
-        let position = postEditPosition(range.startLineNumber, edits) - 1;
-        const lineCount = range.endLineNumber - range.startLineNumber + 1;
-
-        // Attach the viewzone to the line before us (vz is shown after the line it's attached to)
-        let textZone = new TextZone(position, lineCount);
-        createEditor(text.split("\n"), textZone);
-
-        return textZone;
-    });
+export function readdViewzonesAndTransitionOut(editor: monaco.editor.IStandaloneCodeEditor, viewZones: TextZone[], edits: monaco.editor.IIdentifiedSingleEditOperation[]) {
+    for (let viewZone of viewZones) {
+        viewZone.afterLineNumber = postEditPosition(viewZone.afterLineNumber + 1, edits) - 1;
+    }
 
     editor.changeViewZones(accessor => {
         for (let x of viewZones) {

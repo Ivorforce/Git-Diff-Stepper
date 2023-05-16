@@ -66,7 +66,7 @@ export class MonacoPatchController {
         this.currentPatches = [];
     }
 
-    applyPatches() {
+    async applyPatches() {
         if (this.currentPatches.length === 0) {
             return;
         }
@@ -76,9 +76,13 @@ export class MonacoPatchController {
         let decorationClassName = this.currentPatchDirection == PatchDirection.Backwards ? 'deleteCode' : 'addCode';
         let viewZoneClassName = this.currentPatchDirection == PatchDirection.Backwards ? 'addCode' : 'deleteCode';
 
-        let [deleteEdits, deleteViewZoneProtos] = deleteDecoratedText(this.editor, this.decorations);
+        let [deleteEdits, deleteViewZones] = deleteDecoratedText(this.editor, (lines: string[], textZone: TextZone) => this.createEditor(lines, viewZoneClassName, textZone), this.decorations);
         edits.push(...deleteEdits);
-        this.decorations.clear();
+
+        // Nothing happened yet... Let's wait for the text editors to launch.
+        for (let viewZone of deleteViewZones) {
+            await viewZone.mountPromise;
+        }
 
         let addEdits = insertInterspersedText(this.editor, this.viewZones);
         edits.push(...addEdits);
@@ -86,7 +90,7 @@ export class MonacoPatchController {
         this.editor!.executeEdits(null, edits);
 
         readdDecorationsAndTransitionOut(this.decorations, this.viewZones, edits);
-        readdViewzonesAndTransitionOut(this.editor, deleteViewZoneProtos, (lines: string[], textZone: TextZone) => this.createEditor(lines, viewZoneClassName, textZone), edits);
+        readdViewzonesAndTransitionOut(this.editor, deleteViewZones, edits);
         this.viewZones = [];
     }
 }

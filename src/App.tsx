@@ -25,6 +25,7 @@ function createPatchEditor(lines: string[], className: string, textZone: TextZon
           }]);
 
           textZone.editor = editor;
+          textZone.onMount();
     };
 
     const secondEditor = <Editor

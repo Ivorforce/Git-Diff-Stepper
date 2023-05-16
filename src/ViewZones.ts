@@ -12,6 +12,9 @@ export class TextZone implements monaco.editor.IViewZone {
 
     _id?: string;
 
+    onMount: Function;
+    mountPromise: Promise<undefined>;
+
     constructor(
         readonly line: number,
         readonly height: number,
@@ -19,6 +22,7 @@ export class TextZone implements monaco.editor.IViewZone {
         this.afterLineNumber = line;
         this.afterColumn = 1;
         this.heightInLines = height;
+        this.mountPromise = new Promise(resolve => this.onMount = () => resolve(undefined));
     }
 }
 
