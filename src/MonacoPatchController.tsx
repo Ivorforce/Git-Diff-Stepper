@@ -4,6 +4,11 @@ import { TextZone, destroyViewzones, gatherViewzones, insertInterspersedText, re
 import { deleteDecoratedText, gatherDecorations, readdViewzonesAndTransitionOut, transitionInDecorations, transitionOutDecorations } from './Decorations';
 
 
+function clearUndoRedoStack(editor: monaco.editor.ICodeEditor) {
+    let model = editor.getModel()!;
+    (model as any)._undoRedoService._editStacks.get(model.uri.toString())._past = [];
+}
+
 export class MonacoPatchController {
     public editor: monaco.editor.IStandaloneCodeEditor;
     public createEditor: Function;
@@ -102,6 +107,7 @@ export class MonacoPatchController {
 
         this.editor!.executeEdits(null, edits);
         this.editor.pushUndoStop();
+        clearUndoRedoStack(this.editor!);
 
         readdDecorationsAndTransitionOut(this.decorations, this.viewZones, edits);
         readdViewzonesAndTransitionOut(this.editor, deleteViewZones, edits);
