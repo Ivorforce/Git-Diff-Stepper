@@ -52,7 +52,7 @@
       {
         "fullscreen": false,
         "resizable": true,
-        "title": "tauri-diff-stepper",
+        "title": "Git Diff Stepper",
         "width": 800,
         "height": 600
       }

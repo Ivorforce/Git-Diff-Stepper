@@ -18,6 +18,7 @@ export class MonacoPatchController {
         this.editor = editor;
         this.createEditor = createEditor;
         this.decorations = editor.createDecorationsCollection();
+        editor.onDidChangeCursorSelection((event) => this.selectEditor(editor, event));
     }
 
     setContents(contents: string) {
@@ -51,7 +52,20 @@ export class MonacoPatchController {
         transitionInDecorations(this.editor!, decorations, this.decorations);
 
         this.viewZones = gatherViewzones(patches, direction, (lines: string[], textZone: TextZone) => this.createEditor(lines, viewZoneClassName, textZone));
+        this.viewZones.forEach(viewZone => viewZone.editorPromise.then(editor => editor.onDidChangeCursorSelection((event) => this.selectEditor(viewZone.editor, event))));
         transitionInViewzones(this.editor!, this.viewZones);
+    }
+
+    selectEditor(editor: monaco.editor.IStandaloneCodeEditor, event: monaco.editor.ICursorSelectionChangedEvent) {
+        if (event.source === "PatchController") {
+            return;
+        }
+
+        for (let otherEditor of [...this.viewZones.map(x => x.editor), this.editor]) {
+            if (editor !== otherEditor) {
+                otherEditor.setSelection(new monaco.Selection(0, 0, 0, 0), "PatchController");
+            }
+        }
     }
 
     discardPatches() {
@@ -81,7 +95,7 @@ export class MonacoPatchController {
 
         // Nothing happened yet... Let's wait for the text editors to launch.
         for (let viewZone of deleteViewZones) {
-            await viewZone.mountPromise;
+            await viewZone.editorPromise;
         }
 
         let addEdits = insertInterspersedText(this.editor, this.viewZones);
