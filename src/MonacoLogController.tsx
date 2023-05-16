@@ -46,13 +46,6 @@ export class MonacoLogController {
         }
         this.lastUpdate = Date.now()
 
-        const expectedVersion = await invoke('git_show', { file_path: this.filePath, version: this.currentVersion }) as string;
-        if (this.patchController.editor.getValue() !== expectedVersion) {
-            // Spend a step fixing the text first.
-            this.patchController.setContents(expectedVersion);   // FIXME
-            return
-        }
-
         if (this.nextVersion) {
             // We have a version planned! Let's apply or discard it.
             if (this.patchController.currentPatchDirection == direction) {
@@ -68,6 +61,13 @@ export class MonacoLogController {
             return;
         }
         else {
+            const expectedVersion = await invoke('git_show', { file_path: this.filePath, version: this.currentVersion }) as string;
+            if (this.patchController.editor.getValue() !== expectedVersion) {
+                // Spend a step fixing the text first.
+                this.patchController.setContents(expectedVersion);   // FIXME
+                return
+            }
+    
             // We're blank! Let's transition to whereever we want to go.
             const currentVersionIdx = this.commitList.indexOf(this.currentVersion);
             const add = direction == PatchDirection.Forwards ? 1 : -1;
