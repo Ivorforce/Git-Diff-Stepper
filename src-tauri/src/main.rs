@@ -33,13 +33,22 @@ fn open_file(file_path: &PathBuf, window: &Window) -> Result<()> {
     Ok(())
 }
 
+fn save_file(window: &Window) -> Result<()> {
+    window.emit_all("saveFile", ())?;
+
+    Ok(())
+}
+
 fn main() {
     let mut menu = Menu::os_default("Git Diff Stepper");
     for item in menu.items.iter_mut() {
         match item {
             MenuEntry::Submenu(submenu) => {
                 if submenu.title == "File" {
-                    submenu.inner.items.push(MenuEntry::CustomItem(CustomMenuItem::new("openFile", "Open...")));
+                    submenu.inner.items.insert(0, MenuEntry::CustomItem(CustomMenuItem::new("openFile", "Open...").accelerator("CmdOrControl+O")));
+                    submenu.inner.items.insert(1, MenuEntry::NativeItem(tauri::MenuItem::Separator));
+                    submenu.inner.items.insert(2, MenuEntry::CustomItem(CustomMenuItem::new("saveFile", "Save").accelerator("CmdOrControl+S")));
+                    submenu.inner.items.insert(3, MenuEntry::NativeItem(tauri::MenuItem::Separator));
                 }
             },
             _ => {}
@@ -71,6 +80,7 @@ fn main() {
                 dialog::FileDialogBuilder::default()
                     .pick_file(move |path_buf| match path_buf {
                         Some(p) => {
+                            app.fs_scope().allow_file(&p).expect("Wanted to add the file to scope.");
                             open_file(&p, &app.windows()[window_name.as_str()]).expect("Could not open the file.");
                         }
                         _ => {}
@@ -81,6 +91,9 @@ fn main() {
                 //     "external", /* the unique window label */
                 //     tauri::WindowUrl::External("https://tauri.app/".parse().unwrap())
                 //   ).build().unwrap(); 
+              }
+              "saveFile" => {
+                save_file(window);
               }
               _ => {}
             }

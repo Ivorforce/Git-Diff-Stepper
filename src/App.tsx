@@ -13,6 +13,17 @@ import { addSetLanguageActions } from './SetLanguage';
 
 loader.config({ monaco });
 
+function listenReact<T>(name: string, fun: EventCallback<T>) {
+    useEffect(() => {
+        const unlisten = listen(name, fun);
+
+        // Destructor destroys the listener: https://github.com/tauri-apps/tauri/discussions/5194
+        return () => {
+            unlisten.then(f => f());
+        };
+    }, []);
+}
+
 function createPatchEditor(text: string, language: string, textZone: TextZone, decorationClassName?: string) {
     const div = document.createElement("div");
 
@@ -65,16 +76,13 @@ function createPatchEditor(text: string, language: string, textZone: TextZone, d
 function App() {
     let logController: MonacoLogController | undefined;
 
-    useEffect(() => {
-        const unlisten = listen('openFile', async (event) => {
-            logController?.setFile(event.payload as FileInfo);
-        });
+    listenReact('openFile', async (event) => {
+        logController?.setFile(event.payload as FileInfo);
+    });
 
-        // Destructor destroys the listener: https://github.com/tauri-apps/tauri/discussions/5194
-        return () => {
-            unlisten.then(f => f());
-        };
-    }, []);
+    listenReact('saveFile', async (event) => {
+        logController?.saveFile();
+    });
 
     async function handleEditorDidMount(editor: monaco.editor.IStandaloneCodeEditor, monaco: any) {
         let logController_ = new MonacoLogController(editor, createPatchEditor);

@@ -2,6 +2,7 @@ import * as monaco from 'monaco-editor';
 import { MonacoPatchController } from './MonacoPatchController';
 import { invoke } from '@tauri-apps/api/tauri'
 import { PatchDirection, parsePatches } from './Patches';
+import { writeTextFile } from '@tauri-apps/api/fs';
 
 export class FileInfo {
     file_path: string;
@@ -97,5 +98,10 @@ export class MonacoLogController {
 
         this.patchController.editor.setModel(model);
         this.patchController.setContents(text);
+    }
+
+    async saveFile() {
+        let editor = this.patchController.editor;
+        writeTextFile(editor.getModel()!.uri.fsPath, editor.getModel()?.getValue()!);
     }
 }
