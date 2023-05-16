@@ -2,6 +2,8 @@
 
 An app that allows you to animate through the `git log` iterations of a file.
 
+<video src="./doc/demo.mov" controls="controls" style="max-width: 730px;"></video>
+
 It is technically a continuation of [VSCode Git Diff Stepper](https://github.com/Ivorforce/VSCode-Git-Diff-Stepper): VSCode doesn't expose a way to create editors in insets, and that [won't change in the near future](https://github.com/microsoft/vscode/issues/153198). Other projects embed instances of Monaco and try to fit the style; at this point I decided I might as well create a standalone app which may make animations easier too.
 
 ## Controls
