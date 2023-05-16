@@ -84,11 +84,11 @@ export function readdViewzonesAndTransitionOut(editor: monaco.editor.IStandalone
     let viewZones: TextZone[] = protos.map(x => {
         let [range, text] = x;
 
-        let position = postEditPosition(range.startLineNumber, edits);
+        let position = postEditPosition(range.startLineNumber, edits) - 1;
         const lineCount = range.endLineNumber - range.startLineNumber + 1;
 
         // Attach the viewzone to the line before us (vz is shown after the line it's attached to)
-        let textZone = new TextZone(position - 1, lineCount);
+        let textZone = new TextZone(position, lineCount);
         createEditor(text.split("\n"), textZone);
 
         return textZone;

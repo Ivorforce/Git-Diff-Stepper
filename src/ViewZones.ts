@@ -100,25 +100,21 @@ export function postEditPosition(position: number, edits: monaco.editor.IIdentif
     // I imagine this algorithm as conveyor belts: If you have an index, you're in that 2D space.
     // e.g. with a 1 you're in the space between 1 and 2.
 
-    // Note that this simple algorithm does not work if any positions are inside the ranges, rather than on edges,
-    // or if any edits overlap.
+    // Note that this simple algorithm does work if any edits overlap.
 
     const oldPosition = position;
 
     for (let edit of edits) {
-        // The inserts move us if they start at least where we start. The conveyor belt is below us.
-        // If we supported positions within the range, we should add at most the distance to the start.
-        if (edit.range.startLineNumber <= oldPosition) {
+        // Move us back first.
+        const removeLineCount = edit.range.endLineNumber - edit.range.startLineNumber;
+        // If we're on the conveyor belt, move us to its start. If we're past it, move us by its entire length
+        position -= Math.max(0, Math.min(removeLineCount, oldPosition - edit.range.startLineNumber));
+
+        // If we're at least past the piston's end, move us forward. Otherwise, do nothing.
+        if (oldPosition >= edit.range.endLineNumber) {
             // TODO Should be EOL sensitive
             const newlineCount = (edit.text!.match(/\n/g) || []).length;
             position += newlineCount;
-        }
-
-        // The deletes move us if we're at least above the conveyor belt's end.
-        // If we supported positions within the range, we should remove at most the distance to the start.
-        if (edit.range.startLineNumber < oldPosition) {
-            const removeLineCount = edit.range.endLineNumber - edit.range.startLineNumber;
-            position -= removeLineCount;
         }
     }
 
@@ -127,7 +123,7 @@ export function postEditPosition(position: number, edits: monaco.editor.IIdentif
 
 export function readdDecorationsAndTransitionOut(collection: monaco.editor.IEditorDecorationsCollection, viewZones: TextZone[], edits: monaco.editor.IIdentifiedSingleEditOperation[]) {
     collection.set(viewZones.map(viewZone => {
-        let position = postEditPosition(viewZone.afterLineNumber, edits) + 1;
+        let position = Math.round(postEditPosition(viewZone.afterLineNumber + 0.9, edits) + 0.1);
         const lineCount = viewZone.heightInLines;
 
         // TODO eh, shoddy way of finding our decoration.
