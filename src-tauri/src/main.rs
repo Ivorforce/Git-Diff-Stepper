@@ -39,7 +39,7 @@ fn main() {
         match item {
             MenuEntry::Submenu(submenu) => {
                 if submenu.title == "File" {
-                    submenu.inner.items.push(MenuEntry::CustomItem(CustomMenuItem::new("openFile", "Open File")));
+                    submenu.inner.items.push(MenuEntry::CustomItem(CustomMenuItem::new("openFile", "Open...")));
                 }
             },
             _ => {}

@@ -1,7 +1,7 @@
 import * as monaco from 'monaco-editor';
 import Patch, { PatchDirection } from './Patches';
-import { TextZone, destroyViewzones, gatherViewzones, insertInterspersedText, transitionInViewzones, transitionOutViewzones } from './ViewZones';
-import { deleteDecoratedText, gatherDecorations, transitionInDecorations, transitionOutDecorations } from './Decorations';
+import { TextZone, destroyViewzones, gatherViewzones, insertInterspersedText, readdDecorationsAndTransitionOut, transitionInViewzones, transitionOutViewzones } from './ViewZones';
+import { deleteDecoratedText, gatherDecorations, readdViewzonesAndTransitionOut, transitionInDecorations, transitionOutDecorations } from './Decorations';
 
 
 export class MonacoPatchController {
@@ -76,14 +76,17 @@ export class MonacoPatchController {
         let decorationClassName = this.currentPatchDirection == PatchDirection.Backwards ? 'deleteCode' : 'addCode';
         let viewZoneClassName = this.currentPatchDirection == PatchDirection.Backwards ? 'addCode' : 'deleteCode';
 
-        let deleteEdits = deleteDecoratedText(this.editor, (lines: string[], textZone: TextZone) => this.createEditor(lines, viewZoneClassName, textZone), this.currentPatchDirection, this.decorations);
+        let [deleteEdits, deleteViewZoneProtos] = deleteDecoratedText(this.editor, this.decorations);
         edits.push(...deleteEdits);
         this.decorations.clear();
 
         let addEdits = insertInterspersedText(this.editor, this.viewZones);
         edits.push(...addEdits);
-        this.viewZones = [];
 
         this.editor!.executeEdits(null, edits);
+
+        readdDecorationsAndTransitionOut(this.decorations, this.viewZones, edits);
+        readdViewzonesAndTransitionOut(this.editor, deleteViewZoneProtos, (lines: string[], textZone: TextZone) => this.createEditor(lines, viewZoneClassName, textZone), edits);
+        this.viewZones = [];
     }
 }

@@ -1,4 +1,4 @@
-import { TextZone, transitionOutViewzones } from "./ViewZones";
+import { TextZone, postEditPosition, transitionOutViewzones } from "./ViewZones";
 import Patch, { PatchDirection } from "./Patches";
 import * as monaco from 'monaco-editor';
 
@@ -31,7 +31,6 @@ export function transitionInDecorations(editor: monaco.editor.IStandaloneCodeEdi
             options: { ...x.options, className: (x.options.className ?? "") + " fadeIn" },
         }
     });
-    console.log(fadeInDecorations);
 
     collection.set(fadeInDecorations);
     // TODO Adjustable time; requires css tho
@@ -68,21 +67,32 @@ export function expandRange(range: monaco.IRange, fullLine: boolean): monaco.IRa
     } : range;
 }
 
-export function deleteDecoratedText(editor: monaco.editor.IStandaloneCodeEditor, createEditor: Function, direction: PatchDirection, collection: monaco.editor.IEditorDecorationsCollection): monaco.editor.IIdentifiedSingleEditOperation[] {
-    let viewZones: TextZone[] = [];
+export function deleteDecoratedText(editor: monaco.editor.IStandaloneCodeEditor, collection: monaco.editor.IEditorDecorationsCollection): [monaco.editor.IIdentifiedSingleEditOperation[], [monaco.Range, string][]] {
     let edits: monaco.editor.IIdentifiedSingleEditOperation[] = [];
+    let viewzoneProtos: [monaco.Range, string][] = [];
 
     for (let decoration of editor.getModel()!.getAllDecorations().filter(x => collection.has(x))) {
-        // -1 because we want to be *before* the line; decorations use afterLineIndex
-        let textZone = new TextZone(decoration.range.startLineNumber - 1, decoration.range.endLineNumber - decoration.range.startLineNumber + 1);
-        createEditor(editor.getModel()?.getValueInRange(decoration.range).split("\n"), textZone);
-
-        viewZones.push(textZone);
-        edits.push({
-            range: expandRange(decoration.range, decoration.options.isWholeLine ?? false),
-            text: ""
-        });
+        let actualRange = expandRange(decoration.range, decoration.options.isWholeLine ?? false);
+        edits.push({ range: actualRange, text: "" });
+        viewzoneProtos.push([decoration.range, editor.getModel()!.getValueInRange(actualRange)]);
     }
+
+    return [edits, viewzoneProtos]
+}
+
+export function readdViewzonesAndTransitionOut(editor: monaco.editor.IStandaloneCodeEditor, protos: [monaco.Range, string][], createEditor: Function, edits: monaco.editor.IIdentifiedSingleEditOperation[]) {
+    let viewZones: TextZone[] = protos.map(x => {
+        let [range, text] = x;
+
+        let position = postEditPosition(range.startLineNumber, edits);
+        const lineCount = range.endLineNumber - range.startLineNumber + 1;
+
+        // Attach the viewzone to the line before us (vz is shown after the line it's attached to)
+        let textZone = new TextZone(position - 1, lineCount);
+        createEditor(text.split("\n"), textZone);
+
+        return textZone;
+    });
 
     editor.changeViewZones(accessor => {
         for (let x of viewZones) {
@@ -90,6 +100,4 @@ export function deleteDecoratedText(editor: monaco.editor.IStandaloneCodeEditor,
         }
     });
     transitionOutViewzones(editor, viewZones);
-
-    return edits
 }

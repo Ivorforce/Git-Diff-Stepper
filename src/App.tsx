@@ -58,6 +58,7 @@ function createPatchEditor(lines: string[], className: string, textZone: TextZon
     root.render(secondEditor);
 
     textZone.domNode = div;
+    div.style.zIndex = '10'; // without this, the viewzone is not interactive. VSCode does the same.
 }
 
 function App() {
