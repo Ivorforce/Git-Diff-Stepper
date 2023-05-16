@@ -20,7 +20,7 @@ It is technically a continuation of [VSCode Git Diff Stepper](https://github.com
 - When fixing text, add some kind of white flash to show that something happened.
 - When TextZones spawn because of disappearing text, they flash black a bit.
 - Animations and style ought to be configurable.
-- Language ought to be configurable.
+- Language selection should prompt instead of using the selection.
 - Language support should be expandable (vscode extensions?)
 - The file ought to be saveable, for quick test iteration.
 - Add support for ruler markers
