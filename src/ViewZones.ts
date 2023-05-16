@@ -12,7 +12,7 @@ export class TextZone implements monaco.editor.IViewZone {
 
     _id?: string;
 
-    onMount: Function;
+    private _onMount?: Function;
     editorPromise: Promise<monaco.editor.IStandaloneCodeEditor>;
 
     constructor(
@@ -22,7 +22,12 @@ export class TextZone implements monaco.editor.IViewZone {
         this.afterLineNumber = line;
         this.afterColumn = 1;
         this.heightInLines = height;
-        this.editorPromise = new Promise(resolve => this.onMount = (editor) => resolve(editor));
+        this.editorPromise = new Promise(resolve => this._onMount = (editor) => resolve(editor));
+    }
+
+    onMount(editor: monaco.editor.IStandaloneCodeEditor) {
+        this.editor = editor;
+        this._onMount?.(editor)
     }
 }
 
@@ -37,7 +42,10 @@ export function gatherViewzones(patches: Patch[], direction: PatchDirection, cre
             const start = direction == PatchDirection.Forwards ? patch.oldFilePos + patch.delCount - 1 : patch.newFilePos - 1;
 
             let textZone = new TextZone(start, height); 
-            createEditor(direction == PatchDirection.Forwards ? patch.addedLines : patch.removedLines, textZone);
+            createEditor(
+                (direction == PatchDirection.Forwards ? patch.addedLines : patch.removedLines).join("\n"),
+                textZone
+            );
             viewZones.push(textZone);
         }
     }

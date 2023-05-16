@@ -25,8 +25,6 @@ export class MonacoPatchController {
         destroyViewzones(this.editor, this.viewZones);
         this.viewZones = [];
         this.decorations.clear();
-
-        monaco.editor.setModelLanguage(this.editor!.getModel()!, "python");  // FIXME
         this.editor!.getModel()!.setValue(contents);
     }
 
@@ -51,7 +49,7 @@ export class MonacoPatchController {
         });
         transitionInDecorations(this.editor!, decorations, this.decorations);
 
-        this.viewZones = gatherViewzones(patches, direction, (lines: string[], textZone: TextZone) => this.createEditor(lines, viewZoneClassName, textZone));
+        this.viewZones = gatherViewzones(patches, direction, (text: string, textZone: TextZone) => this.createEditor(text, this.editor.getModel()?.getLanguageId(), textZone, viewZoneClassName));
         this.viewZones.forEach(viewZone => viewZone.editorPromise.then(editor => editor.onDidChangeCursorSelection((event) => this.selectEditor(viewZone.editor, event))));
         transitionInViewzones(this.editor!, this.viewZones);
     }
@@ -90,7 +88,7 @@ export class MonacoPatchController {
         let decorationClassName = this.currentPatchDirection == PatchDirection.Backwards ? 'deleteCode' : 'addCode';
         let viewZoneClassName = this.currentPatchDirection == PatchDirection.Backwards ? 'addCode' : 'deleteCode';
 
-        let [deleteEdits, deleteViewZones] = deleteDecoratedText(this.editor, (lines: string[], textZone: TextZone) => this.createEditor(lines, viewZoneClassName, textZone), this.decorations);
+        let [deleteEdits, deleteViewZones] = deleteDecoratedText(this.editor, (text: string, textZone: TextZone) => this.createEditor(text, this.editor.getModel()?.getLanguageId(), textZone, viewZoneClassName), this.decorations);
         edits.push(...deleteEdits);
 
         // Nothing happened yet... Let's wait for the text editors to launch.

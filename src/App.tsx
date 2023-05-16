@@ -12,28 +12,26 @@ import { TextZone } from './ViewZones';
 
 loader.config({ monaco });
 
-function createPatchEditor(lines: string[], className: string, textZone: TextZone) {
+function createPatchEditor(text: string, language: string, textZone: TextZone, decorationClassName?: string) {
     const div = document.createElement("div");
 
     async function handleEditorDidMount(editor: monaco.editor.IStandaloneCodeEditor, monaco: any) {
-        editor.createDecorationsCollection([{
-            range: new monaco.Range(0, 0, lines.length, 0),
-            options: {
-              isWholeLine: true,
-              className: className,
-            }
-          }]);
+        textZone.onMount(editor);
 
-          textZone.editor = editor;
-          textZone.onMount(editor);
+        if (decorationClassName) {
+            editor.createDecorationsCollection([{
+                range: new monaco.Range(0, 0, editor.getModel()?.getLineCount, 0),
+                options: { isWholeLine: true, className: decorationClassName }
+            }]);
+        }
     };
 
     const secondEditor = <Editor
         onMount={handleEditorDidMount}
         theme="vs-dark"
 
-        language='python'  // TODO
-        value={lines.join("\n")}
+        language={language}
+        value={text}
 
         options={{
             glyphMargin: false,
@@ -69,7 +67,7 @@ function App() {
         const unlisten = listen('openFile', async (event) => {
             logController?.setFile(event.payload as FileInfo);
         });
-        
+
         // Destructor destroys the listener: https://github.com/tauri-apps/tauri/discussions/5194
         return () => {
             unlisten.then(f => f());
@@ -81,7 +79,7 @@ function App() {
         logController = logController_;
 
         editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyMod.Alt | monaco.KeyCode.LeftArrow, () => logController_.prev());
-        editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyMod.Alt | monaco.KeyCode.RightArrow, () => logController_.next());        
+        editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyMod.Alt | monaco.KeyCode.RightArrow, () => logController_.next());
     }
 
     return <Editor

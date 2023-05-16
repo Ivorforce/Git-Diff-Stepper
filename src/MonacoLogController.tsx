@@ -49,7 +49,7 @@ export class MonacoLogController {
         const expectedVersion = await invoke('git_show', { file_path: this.filePath, version: this.currentVersion }) as string;
         if (this.patchController.editor.getValue() !== expectedVersion) {
             // Spend a step fixing the text first.
-            this.patchController.setContents(expectedVersion);
+            this.patchController.setContents(expectedVersion);   // FIXME
             return
         }
 
@@ -93,6 +93,9 @@ export class MonacoLogController {
         this.currentVersion = fileInfo.commit_list[0];
 
         const text = await invoke('git_show', { file_path: this.filePath, version: this.currentVersion }) as string;
+        const model = monaco.editor.createModel(text, undefined, monaco.Uri.file(this.filePath));
+
+        this.patchController.editor.setModel(model);
         this.patchController.setContents(text);
     }
 }

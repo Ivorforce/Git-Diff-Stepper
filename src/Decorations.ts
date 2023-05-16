@@ -78,7 +78,7 @@ export function deleteDecoratedText(editor: monaco.editor.IStandaloneCodeEditor,
         let text = editor.getModel()!.getValueInRange(actualRange);
         const lineCount = decoration.range.endLineNumber - decoration.range.startLineNumber + 1;
         let textZone = new TextZone(decoration.range.startLineNumber - 1, lineCount);
-        createEditor(text.split("\n"), textZone);
+        createEditor(text, textZone);
         viewzones.push(textZone);
     }
 
