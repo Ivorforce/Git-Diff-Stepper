@@ -20,14 +20,22 @@
       "fs": {
         "all": false,
         "readFile": true,
+        "writeFile": true,
         "readDir": true,
+        "createDir": true,
+        "exists": true,
         "scope": [
-          "/Users/lukas/dev/godot/Planet Movement/player/*"
+          "$APPDATA/*",
+          "$APPDATA/tmlanguages/*",
+          "$RESOURCE/onigasm.wasm"
         ]
       },
       "dialog": {
         "all": false,
         "open": true
+      },
+      "path": {
+        "all": true
       }
     },
     "bundle": {
@@ -39,8 +47,11 @@
         "icons/icon.icns",
         "icons/icon.ico"
       ],
-      "identifier": "com.tauri.dev",
-      "targets": "all"
+      "identifier": "de.ivorius.gitdiffstepper",
+      "targets": "all",
+      "resources": [
+        "onigasm.wasm"
+      ]
     },
     "security": {
       "csp": null
