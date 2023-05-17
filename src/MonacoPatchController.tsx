@@ -55,8 +55,11 @@ export class MonacoPatchController {
         });
         transitionInDecorations(this.editor!, decorations, this.decorations);
 
-        this.viewZones = gatherViewzones(patches, direction, (text: string, textZone: TextZone) => this.createEditor(text, this.editor.getModel()?.getLanguageId(), textZone, viewZoneClassName));
-        this.viewZones.forEach(viewZone => viewZone.editorPromise.then(editor => editor.onDidChangeCursorSelection((event) => this.selectEditor(viewZone.editor, event))));
+        this.viewZones = gatherViewzones(patches, direction, (textZone: TextZone) => this.createEditor(this.editor.getModel()?.getLanguageId(), textZone), {
+            isWholeLine: true,
+            className: viewZoneClassName,
+        });
+        this.viewZones.forEach(viewZone => viewZone.editorPromise.then(editor => editor.onDidChangeCursorSelection((event) => this.selectEditor(editor, event))));
         transitionInViewzones(this.editor!, this.viewZones);
     }
 
@@ -67,7 +70,7 @@ export class MonacoPatchController {
 
         for (let otherEditor of [...this.viewZones.map(x => x.editor), this.editor]) {
             if (editor !== otherEditor) {
-                otherEditor.setSelection(new monaco.Selection(0, 0, 0, 0), "PatchController");
+                otherEditor?.setSelection(new monaco.Selection(0, 0, 0, 0), "PatchController");
             }
         }
     }
@@ -91,10 +94,7 @@ export class MonacoPatchController {
 
         let edits: monaco.editor.IIdentifiedSingleEditOperation[] = [];
 
-        let decorationClassName = this.currentPatchDirection == PatchDirection.Backwards ? 'deleteCode' : 'addCode';
-        let viewZoneClassName = this.currentPatchDirection == PatchDirection.Backwards ? 'addCode' : 'deleteCode';
-
-        let [deleteEdits, deleteViewZones] = deleteDecoratedText(this.editor, (text: string, textZone: TextZone) => this.createEditor(text, this.editor.getModel()?.getLanguageId(), textZone, viewZoneClassName), this.decorations);
+        let [deleteEdits, deleteViewZones] = deleteDecoratedText(this.editor, (textZone: TextZone) => this.createEditor(this.editor.getModel()?.getLanguageId(), textZone), this.decorations);
         edits.push(...deleteEdits);
 
         // Nothing happened yet... Let's wait for the text editors to launch.

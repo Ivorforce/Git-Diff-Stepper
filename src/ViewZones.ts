@@ -5,10 +5,13 @@ import Patch, { PatchDirection } from './Patches';
 
 export class TextZone implements monaco.editor.IViewZone {
     domNode: HTMLElement;
-    editor: monaco.editor.IStandaloneCodeEditor;
+    editor?: monaco.editor.IStandaloneCodeEditor;
     afterLineNumber: number;
     afterColumn: number;
     heightInLines: number;
+
+    initialText: string;
+    decorationOptions: monaco.editor.IModelDecorationOptions;
 
     _id?: string;
 
@@ -18,10 +21,16 @@ export class TextZone implements monaco.editor.IViewZone {
     constructor(
         readonly line: number,
         readonly height: number,
+        initialText: string,  // Needed if we are destroyed before the editor starts up.
+        decorationOptions: monaco.editor.IModelDecorationOptions,
     ) {
         this.afterLineNumber = line;
         this.afterColumn = 1;
         this.heightInLines = height;
+
+        this.initialText = initialText;
+        this.decorationOptions = decorationOptions;
+
         this.editorPromise = new Promise(resolve => this._onMount = (editor) => resolve(editor));
     }
 
@@ -31,7 +40,7 @@ export class TextZone implements monaco.editor.IViewZone {
     }
 }
 
-export function gatherViewzones(patches: Patch[], direction: PatchDirection, createEditor: Function): TextZone[] {
+export function gatherViewzones(patches: Patch[], direction: PatchDirection, createEditor: Function, decorationOptions: monaco.editor.IModelDecorationOptions): TextZone[] {
     let viewZones: TextZone[] = [];
 
     for (let patch of patches) {
@@ -41,11 +50,9 @@ export function gatherViewzones(patches: Patch[], direction: PatchDirection, cre
             // - 1 because we want to insert *before* the line - viewZones use "afterLineNumber".
             const start = direction == PatchDirection.Forwards ? patch.oldFilePos + patch.delCount - 1 : patch.newFilePos - 1;
 
-            let textZone = new TextZone(start, height); 
-            createEditor(
-                (direction == PatchDirection.Forwards ? patch.addedLines : patch.removedLines).join("\n"),
-                textZone
-            );
+            let text = (direction == PatchDirection.Forwards ? patch.addedLines : patch.removedLines).join("\n");
+            let textZone = new TextZone(start, height, text, decorationOptions); 
+            createEditor(textZone);
             viewZones.push(textZone);
         }
     }
@@ -103,7 +110,7 @@ export function insertInterspersedText(editor: monaco.editor.IStandaloneCodeEdit
         return {
             // + 1 because we want to insert AFTER that line.
             range: { startLineNumber: viewZone.afterLineNumber + 1, endLineNumber: viewZone.afterLineNumber + 1, startColumn: 0, endColumn: 0 },
-            text: viewZone.editor.getModel()!.getValue() + "\n"  // Last newline is intentionally left out of the patch editor
+            text: (viewZone.editor?.getModel()?.getValue() ?? viewZone.initialText) + "\n"  // Last newline is intentionally left out of the patch editor
         };
     });
 }
@@ -138,11 +145,9 @@ export function insertDecorationsPostEdit(collection: monaco.editor.IEditorDecor
         let position = Math.round(postEditPosition(viewZone.afterLineNumber + 0.9, edits) + 0.1);
         const lineCount = viewZone.heightInLines;
 
-        // TODO eh, shoddy way of finding our decoration.
-        const referenceOptions = viewZone.editor.getModel()!.getAllDecorations().filter(x => x.options.className?.includes("Code"))[0].options;
         return {
             range: { startLineNumber: position, startColumn: 0, endLineNumber: position + lineCount - 1, endColumn: 0 },
-            options: referenceOptions
+            options: viewZone.decorationOptions
         }
     }));
 }

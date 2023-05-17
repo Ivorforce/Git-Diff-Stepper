@@ -25,16 +25,22 @@ export function transitionInDecorations(editor: monaco.editor.IStandaloneCodeEdi
         return;
     }
 
-    let fadeInDecorations: monaco.editor.IModelDeltaDecoration[] = decorations.map(x => {
+    const fadeInDecorations: monaco.editor.IModelDeltaDecoration[] = decorations.map(x => {
         return {
             range: x.range,
             options: { ...x.options, className: (x.options.className ?? "") + " fadeIn" },
         }
     });
 
-    collection.set(fadeInDecorations);
+    const fadeInDecorationIds = collection.set(fadeInDecorations);
+
     // TODO Adjustable time; requires css tho
     setTimeout(() => {
+        // Check if we're still fading in
+        if (!fadeInDecorationIds.every(x => editor.getModel()?.getDecorationOptions(x))) {
+            return;
+        }
+
         collection.set(decorations);
     }, 500);
 }
@@ -51,11 +57,15 @@ export function transitionOutDecorations(editor: monaco.editor.IStandaloneCodeEd
                 range: x.range,
                 options: { ...x.options, className: (x.options.className ?? "") + " fadeOut" },
             }
-        })
+        });
 
-    collection.set(mappedDecorations);
+    // Let's create a new one so the old one is still accessible / can be re-filled.
+    let newCollection = editor.createDecorationsCollection();
+    newCollection.set(mappedDecorations);
+    collection.clear();
+
     // TODO Adjustable time; requires css tho
-    setTimeout(() => collection.clear(), 500);
+    setTimeout(() => newCollection.clear(), 500);
 }
 
 export function expandRange(range: monaco.IRange, fullLine: boolean): monaco.IRange {
@@ -77,8 +87,8 @@ export function deleteDecoratedText(editor: monaco.editor.IStandaloneCodeEditor,
 
         let text = editor.getModel()!.getValueInRange(actualRange);
         const lineCount = decoration.range.endLineNumber - decoration.range.startLineNumber + 1;
-        let textZone = new TextZone(decoration.range.startLineNumber - 1, lineCount);
-        createEditor(text, textZone);
+        let textZone = new TextZone(decoration.range.startLineNumber - 1, lineCount, text, decoration.options);
+        createEditor(textZone);
         viewzones.push(textZone);
     }
 

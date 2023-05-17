@@ -41,8 +41,8 @@ export class MonacoLogController {
             return;
         }
 
-        // TODO For now, this is a failsafe because animations are not mixable.
-        if (Date.now() < this.lastUpdate + 500) {
+        // TODO This is a failsafe because if it runs too fast we sometimes get errors.
+        if (Date.now() < this.lastUpdate + 100) {
             return
         }
         this.lastUpdate = Date.now()

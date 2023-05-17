@@ -24,19 +24,15 @@ function listenReact<T>(name: string, fun: EventCallback<T>) {
     }, []);
 }
 
-function createPatchEditor(text: string, language: string, textZone: TextZone, decorationClassName?: string) {
-    const div = document.createElement("div");
-
+function createPatchEditor(language: string, textZone: TextZone) {
     async function handleEditorDidMount(editor: monaco.editor.IStandaloneCodeEditor, monaco: any) {
         textZone.onMount(editor);
 
-        if (decorationClassName) {
-            editor.createDecorationsCollection([{
-                range: new monaco.Range(0, 0, 9999, 0),
-                // range: new monaco.Range(0, 0, editor.getModel()?.getLineCount, 0),  // For some reason this doesn't work right now.
-                options: { isWholeLine: true, className: decorationClassName }
-            }]);
-        }
+        editor.createDecorationsCollection([{
+            range: new monaco.Range(0, 0, 9999, 0),
+            // range: new monaco.Range(0, 0, editor.getModel()?.getLineCount, 0),  // For some reason this doesn't work right now.
+            options: textZone.decorationOptions
+        }]);
     };
 
     const secondEditor = <Editor
@@ -44,7 +40,7 @@ function createPatchEditor(text: string, language: string, textZone: TextZone, d
         theme="vs-dark-plus"
 
         language={language}
-        value={text}
+        value={textZone.initialText}
 
         options={{
             glyphMargin: false,
@@ -66,6 +62,7 @@ function createPatchEditor(text: string, language: string, textZone: TextZone, d
         }}
     />;
 
+    const div = document.createElement("div");
     const root = ReactDOM.createRoot(div);
     root.render(secondEditor);
 
