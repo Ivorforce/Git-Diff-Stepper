@@ -81,13 +81,19 @@ function App() {
         logController?.saveFile();
     });
 
+    listenReact('stepNext', async (event) => {
+        logController?.next();
+    });
+
+    listenReact('stepPrev', async (event) => {
+        logController?.prev()
+    });
+
     async function handleEditorDidMount(editor: monaco.editor.IStandaloneCodeEditor, monaco: any) {
         let logController_ = new MonacoLogController(editor, createPatchEditor);
         logController = logController_;
 
         addSetLanguageActions(editor);
-        editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyMod.Alt | monaco.KeyCode.LeftArrow, () => logController_.prev());
-        editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyMod.Alt | monaco.KeyCode.RightArrow, () => logController_.next());
     }
 
     return <Editor

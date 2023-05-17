@@ -3,7 +3,7 @@
 
 use std::path::{PathBuf};
 
-use tauri::{Result, CustomMenuItem, Menu, MenuEntry, Manager, Window,};
+use tauri::{Result, CustomMenuItem, Menu, MenuEntry, Manager, Window, Submenu,};
 use tauri::api::dialog;
 use serde::Serialize;
 
@@ -33,12 +33,6 @@ fn open_file(file_path: &PathBuf, window: &Window) -> Result<()> {
     Ok(())
 }
 
-fn save_file(window: &Window) -> Result<()> {
-    window.emit_all("saveFile", ())?;
-
-    Ok(())
-}
-
 fn main() {
     let mut menu = Menu::os_default("Git Diff Stepper");
     for item in menu.items.iter_mut() {
@@ -54,6 +48,14 @@ fn main() {
             _ => {}
         }
     }
+    menu.items.insert(3,
+        MenuEntry::Submenu(Submenu::new(
+            "Transition".to_string(),
+             Menu::new()
+                .add_item(CustomMenuItem::new("stepNext", "Next Commit").accelerator("CommandOrControl+Alt+Right"))
+                .add_item(CustomMenuItem::new("stepPrev", "Previous Commit").accelerator("CommandOrControl+Alt+Left"))
+        ))
+    );
 
     tauri::Builder::default()
         .menu(menu)
@@ -76,7 +78,7 @@ fn main() {
             let app = window.app_handle();
             
             match event.menu_item_id() {
-              "openFile" => {
+                "openFile" => {
                 dialog::FileDialogBuilder::default()
                     .pick_file(move |path_buf| match path_buf {
                         Some(p) => {
@@ -91,11 +93,17 @@ fn main() {
                 //     "external", /* the unique window label */
                 //     tauri::WindowUrl::External("https://tauri.app/".parse().unwrap())
                 //   ).build().unwrap(); 
-              }
-              "saveFile" => {
-                save_file(window);
-              }
-              _ => {}
+                }
+                "saveFile" => {
+                    window.emit_all("saveFile", ()).expect("Could not save file.");
+                }
+                "stepNext" => {
+                    window.emit_all("stepNext", ()).expect("Could not transition.");
+                }
+                "stepPrev" => {
+                    window.emit_all("stepPrev", ()).expect("Could not transition.");
+                }
+                _ => {}
             }
           })      
           .invoke_handler(tauri::generate_handler![git_diff, git_show])
