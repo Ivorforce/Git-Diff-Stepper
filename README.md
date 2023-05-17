@@ -9,7 +9,7 @@ It is technically a continuation of [VSCode Git Diff Stepper](https://github.com
 ## Controls
 
 - Select a file using File -> Open. The file must be tracked by git, and should have multiple commits.
-- `cmd / ctrl` + `left` or `right` arrow keys move through iterations.
+- `cmd / ctrl` + `alt / option` + `left` or `right` arrow keys move through iterations.
 - `f1` to launch the command palette.
 
 ## Language Support
