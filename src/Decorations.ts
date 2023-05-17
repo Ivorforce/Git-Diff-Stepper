@@ -55,7 +55,7 @@ export function transitionOutDecorations(editor: monaco.editor.IStandaloneCodeEd
         .map(x => {
             return {
                 range: x.range,
-                options: { ...x.options, className: (x.options.className ?? "") + " fadeOut" },
+                options: { ...x.options, className: (x.options.className ?? "").replace("fadeIn", "") + " fadeOut" },
             }
         });
 
