@@ -39,8 +39,9 @@ function createPatchEditor(language: string, textZone: TextZone) {
         onMount={handleEditorDidMount}
         theme="vs-dark-plus"
 
-        language={language}
-        value={textZone.initialText}
+        // language / value inputs are tracked, "default" versions are only for the initial value
+        defaultLanguage={language}
+        defaultValue={textZone.initialText}
 
         options={{
             glyphMargin: false,
