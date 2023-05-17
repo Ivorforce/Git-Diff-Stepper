@@ -85,7 +85,7 @@ export function deleteDecoratedText(editor: monaco.editor.IStandaloneCodeEditor,
     return [edits, viewzones]
 }
 
-export function readdViewzonesAndTransitionOut(editor: monaco.editor.IStandaloneCodeEditor, viewZones: TextZone[], edits: monaco.editor.IIdentifiedSingleEditOperation[]) {
+export function insertViewzonesPostEdit(editor: monaco.editor.IStandaloneCodeEditor, viewZones: TextZone[], edits: monaco.editor.IIdentifiedSingleEditOperation[]) {
     for (let viewZone of viewZones) {
         viewZone.afterLineNumber = postEditPosition(viewZone.afterLineNumber + 1, edits) - 1;
     }
@@ -95,5 +95,4 @@ export function readdViewzonesAndTransitionOut(editor: monaco.editor.IStandalone
             x._id = accessor.addZone(x);
         }
     });
-    transitionOutViewzones(editor, viewZones);
 }

@@ -50,7 +50,9 @@ export class MonacoLogController {
         if (this.nextVersion) {
             // We have a version planned! Let's apply or discard it.
             if (this.patchController.currentPatchDirection == direction) {
-                this.patchController.applyPatches();
+                await this.patchController.swapPatchFront();
+                this.patchController.discardPatches();
+
                 this.currentVersion = this.nextVersion;
                 this.nextVersion = undefined;
             }

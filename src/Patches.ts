@@ -5,6 +5,10 @@ export enum PatchDirection {
     Forwards, Backwards
 }
 
+export function swapPatchDirection(direction: PatchDirection) {
+    return direction === PatchDirection.Forwards ? PatchDirection.Backwards : PatchDirection.Forwards
+}
+
 export default class Patch {
     // Starts at 1.
     public oldFilePos: number;

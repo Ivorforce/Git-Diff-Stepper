@@ -133,7 +133,7 @@ export function postEditPosition(position: number, edits: monaco.editor.IIdentif
     return position;
 }
 
-export function readdDecorationsAndTransitionOut(collection: monaco.editor.IEditorDecorationsCollection, viewZones: TextZone[], edits: monaco.editor.IIdentifiedSingleEditOperation[]) {
+export function insertDecorationsPostEdit(collection: monaco.editor.IEditorDecorationsCollection, viewZones: TextZone[], edits: monaco.editor.IIdentifiedSingleEditOperation[]) {
     collection.set(viewZones.map(viewZone => {
         let position = Math.round(postEditPosition(viewZone.afterLineNumber + 0.9, edits) + 0.1);
         const lineCount = viewZone.heightInLines;
@@ -142,11 +142,9 @@ export function readdDecorationsAndTransitionOut(collection: monaco.editor.IEdit
         const referenceOptions = viewZone.editor.getModel()!.getAllDecorations().filter(x => x.options.className?.includes("Code"))[0].options;
         return {
             range: { startLineNumber: position, startColumn: 0, endLineNumber: position + lineCount - 1, endColumn: 0 },
-            options: { ...referenceOptions, className: (referenceOptions.className ?? "") + " fadeOut" }
+            options: referenceOptions
         }
     }));
-
-    setTimeout(() => collection.clear(), 500);
 }
 
 export function destroyViewzones(editor: monaco.editor.IStandaloneCodeEditor, viewZones: TextZone[]) {

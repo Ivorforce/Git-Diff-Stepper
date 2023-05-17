@@ -1,7 +1,7 @@
 import * as monaco from 'monaco-editor';
-import Patch, { PatchDirection } from './Patches';
-import { TextZone, destroyViewzones, gatherViewzones, insertInterspersedText, readdDecorationsAndTransitionOut, transitionInViewzones, transitionOutViewzones } from './ViewZones';
-import { deleteDecoratedText, gatherDecorations, readdViewzonesAndTransitionOut, transitionInDecorations, transitionOutDecorations } from './Decorations';
+import Patch, { PatchDirection, swapPatchDirection } from './Patches';
+import { TextZone, destroyViewzones, gatherViewzones, insertInterspersedText, insertDecorationsPostEdit, transitionInViewzones, transitionOutViewzones } from './ViewZones';
+import { deleteDecoratedText, gatherDecorations, insertViewzonesPostEdit, transitionInDecorations, transitionOutDecorations } from './Decorations';
 
 
 function clearUndoRedoStack(editor: monaco.editor.ICodeEditor) {
@@ -84,7 +84,7 @@ export class MonacoPatchController {
         this.currentPatches = [];
     }
 
-    async applyPatches() {
+    async swapPatchFront() {
         if (this.currentPatches.length === 0) {
             return;
         }
@@ -109,8 +109,10 @@ export class MonacoPatchController {
         this.editor.pushUndoStop();
         clearUndoRedoStack(this.editor!);
 
-        readdDecorationsAndTransitionOut(this.decorations, this.viewZones, edits);
-        readdViewzonesAndTransitionOut(this.editor, deleteViewZones, edits);
-        this.viewZones = [];
+        insertDecorationsPostEdit(this.decorations, this.viewZones, edits);
+        insertViewzonesPostEdit(this.editor, deleteViewZones, edits);
+        this.viewZones = deleteViewZones;
+
+        this.currentPatchDirection = swapPatchDirection(this.currentPatchDirection);
     }
 }
