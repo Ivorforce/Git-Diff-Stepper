@@ -5,7 +5,7 @@ import './App.css';
 import * as monaco from 'monaco-editor';
 import { loader } from '@monaco-editor/react';
 import { MonacoLogController, FileInfo } from './MonacoLogController';
-import { emit, listen } from '@tauri-apps/api/event'
+import { EventCallback, emit, listen } from '@tauri-apps/api/event'
 import { useEffect } from 'react';
 import Editor from "@monaco-editor/react";
 import { TextZone } from './ViewZones';
