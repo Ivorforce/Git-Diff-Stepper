@@ -8,7 +8,7 @@ export class TextZone implements monaco.editor.IViewZone {
     editor?: monaco.editor.IStandaloneCodeEditor;
     afterLineNumber: number;
     afterColumn: number;
-    heightInLines: number;
+    heightInLines: number;  // Note: During transition, this is too low!
 
     initialText: string;
     decorationOptions: monaco.editor.IModelDecorationOptions;
@@ -37,6 +37,10 @@ export class TextZone implements monaco.editor.IViewZone {
     onMount(editor: monaco.editor.IStandaloneCodeEditor) {
         this.editor = editor;
         this._onMount?.(editor)
+    }
+
+    getText(): string {
+        return this.editor?.getModel()?.getValue() ?? this.initialText;
     }
 }
 
@@ -110,7 +114,7 @@ export function insertInterspersedText(editor: monaco.editor.IStandaloneCodeEdit
         return {
             // + 1 because we want to insert AFTER that line.
             range: { startLineNumber: viewZone.afterLineNumber + 1, endLineNumber: viewZone.afterLineNumber + 1, startColumn: 0, endColumn: 0 },
-            text: (viewZone.editor?.getModel()?.getValue() ?? viewZone.initialText) + "\n"  // Last newline is intentionally left out of the patch editor
+            text: viewZone.getText() + "\n"  // Last newline is intentionally left out of the patch editor
         };
     });
 }
@@ -132,7 +136,7 @@ export function postEditPosition(position: number, edits: monaco.editor.IIdentif
         // If we're at least past the piston's end, move us forward. Otherwise, do nothing.
         if (oldPosition >= edit.range.endLineNumber) {
             // TODO Should be EOL sensitive
-            const newlineCount = (edit.text!.match(/\n/g) || []).length;
+            const newlineCount = (edit.text!.match(/\n/g) || []).length;  // TODO Shouldn't this be newlines + 1??
             position += newlineCount;
         }
     }
@@ -143,7 +147,7 @@ export function postEditPosition(position: number, edits: monaco.editor.IIdentif
 export function insertDecorationsPostEdit(collection: monaco.editor.IEditorDecorationsCollection, viewZones: TextZone[], edits: monaco.editor.IIdentifiedSingleEditOperation[]) {
     collection.set(viewZones.map(viewZone => {
         let position = Math.round(postEditPosition(viewZone.afterLineNumber + 0.9, edits) + 0.1);
-        const lineCount = viewZone.heightInLines;
+        const lineCount = (viewZone.getText().match(/\n/g) || []).length + 1;
 
         return {
             range: { startLineNumber: position, startColumn: 0, endLineNumber: position + lineCount - 1, endColumn: 0 },
