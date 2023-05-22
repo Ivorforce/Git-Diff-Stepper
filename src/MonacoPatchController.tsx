@@ -99,7 +99,12 @@ export class MonacoPatchController {
 
         // Nothing happened yet... Let's wait for the text editors to launch.
         for (let viewZone of deleteViewZones) {
-            await viewZone.editorPromise;
+            let editor = await viewZone.editorPromise;
+            // I think preparing width and height before it's shown helps reduce load time when it is finally shown.
+            editor.layout({
+                width: this.editor.getLayoutInfo().width,
+                height: editor.getOption(monaco.editor.EditorOption.fontInfo).lineHeight * editor.getModel()!.getLineCount()
+            })
         }
 
         let addEdits = insertInterspersedText(this.editor, this.viewZones);
