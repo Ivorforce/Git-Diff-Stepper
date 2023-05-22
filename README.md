@@ -14,6 +14,8 @@ It is technically a continuation of [VSCode Git Diff Stepper](https://github.com
 
 ## Language Support
 
+
+
 We have support for textmate `.tmLanguage` files! Drop a `.tmLanguage` file into `$AppData/de.ivorius.gitdiffstepper/tmlanguages` and relaunch the app. The file name should be equivalent to the file ending (e.g. `css.tmLanguage` for `.css` files).
 
 To switch to the language manually, use the command palette.
@@ -23,3 +25,9 @@ To switch to the language manually, use the command palette.
 - Install Rust, pnpm
 - `pnpm install`
 - `pnpm tauri dev`
+
+### Tech Stack
+
+- [Tauri](https://tauri.app) as a web app host.
+- [React](https://react.dev) as a frontend library.
+- [Monaco](https://microsoft.github.io/monaco-editor/) as a code editor.
