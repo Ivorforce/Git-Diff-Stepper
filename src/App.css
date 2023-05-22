@@ -43,10 +43,6 @@ body {
   }
 }
 
-.fade-in {
-  animation: fadein 5s;
-}
-
 @keyframes fadein {
   from {
     opacity: 0;

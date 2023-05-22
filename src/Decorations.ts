@@ -20,10 +20,19 @@ export function gatherDecorations(patches: Patch[], direction: PatchDirection, o
     return decorations;
 }
 
+export function removeDecorationsMatching(editor: monaco.editor.IStandaloneCodeEditor, match: (options: monaco.editor.IModelDecoration) => boolean) {
+    editor.removeDecorations(editor.getModel()!.getAllDecorations()
+        .filter(match)
+        .map(x => x.id))
+}
+
 export function transitionInDecorations(editor: monaco.editor.IStandaloneCodeEditor, decorations: monaco.editor.IModelDeltaDecoration[], collection: monaco.editor.IEditorDecorationsCollection) {
     if (decorations.length == 0) {
         return;
     }
+
+    // Remove fadeOuts before we fade in
+    removeDecorationsMatching(editor, x => (x.options.className?.includes("fadeOut") ?? false) && decorations.some(y => x.range.intersectRanges(y.range)));
 
     const fadeInDecorations: monaco.editor.IModelDeltaDecoration[] = decorations.map(x => {
         return {
@@ -58,6 +67,9 @@ export function transitionOutDecorations(editor: monaco.editor.IStandaloneCodeEd
                 options: { ...x.options, className: (x.options.className ?? "").replace("fadeIn", "") + " fadeOut" },
             }
         });
+
+    // Remove fadeIns before we fade out
+    removeDecorationsMatching(editor, x => (x.options.className?.includes("fadeIn") ?? false) && collection.getRanges().some(y => x.range.intersectRanges(y)));
 
     // Let's create a new one so the old one is still accessible / can be re-filled.
     let newCollection = editor.createDecorationsCollection();
