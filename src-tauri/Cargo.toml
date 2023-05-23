@@ -1,6 +1,6 @@
 [package]
 name = "git-diff-stepper"
-version = "1.0.0"
+version = "1.1.0"
 description = "Lets you step through a file's git log with animations."
 authors = ["Lukas Tenbrink"]
 license = ""
