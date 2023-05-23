@@ -29,6 +29,7 @@ fn open_file(file_path: &PathBuf, window: &Window) -> Result<()> {
     let commit_list = commands::get_commit_list(file_path);
 
     window.emit_all("openFile", FileInfo { file_path: file_path.clone(), commit_list })?;
+    window.set_title(file_path.file_name().unwrap().to_str().unwrap())?;
 
     Ok(())
 }
