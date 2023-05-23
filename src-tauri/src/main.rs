@@ -33,6 +33,21 @@ fn open_file(file_path: &PathBuf, window: &Window) -> Result<()> {
     Ok(())
 }
 
+fn find_menu_idx(menu: &Menu, name: &str) -> Option<usize> {
+    for (idx, item) in menu.items.iter().enumerate() {
+        match item {
+            MenuEntry::Submenu(submenu) => {
+                if submenu.title == name {
+                    return Some(idx)
+                }
+            },
+            _ => continue,
+        }
+    }
+
+    None
+}
+
 fn main() {
     let mut menu = Menu::os_default("Git Diff Stepper");
     for item in menu.items.iter_mut() {
@@ -48,7 +63,9 @@ fn main() {
             _ => {}
         }
     }
-    menu.items.insert(3,
+
+    let transition_item_idx = find_menu_idx(&menu, "Edit").or_else(|| find_menu_idx(&menu, "File")).unwrap_or(0) + 1;
+    menu.items.insert(transition_item_idx,
         MenuEntry::Submenu(Submenu::new(
             "Transition".to_string(),
              Menu::new()
