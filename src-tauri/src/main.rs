@@ -65,7 +65,10 @@ fn main() {
         }
     }
 
-    let transition_item_idx = find_menu_idx(&menu, "Edit").or_else(|| find_menu_idx(&menu, "File")).unwrap_or(0) + 1;
+    let transition_item_idx = find_menu_idx(&menu, "Edit")
+        .or_else(|| find_menu_idx(&menu, "File"))
+        .map(|x| x + 1)
+        .unwrap_or(menu.items.len());
     menu.items.insert(transition_item_idx,
         MenuEntry::Submenu(Submenu::new(
             "Transition".to_string(),
