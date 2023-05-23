@@ -33,7 +33,7 @@ export class MonacoLogController {
         const diff = await invoke('git_diff', { file_path: this.filePath, before_version: before_version, after_version: after_version }) as string;
         const patches = parsePatches(diff);
 
-		this.patchController.setPatches(patches, direction);
+		await this.patchController.setPatches(patches, direction);
     }
 
     async move(direction: PatchDirection) {

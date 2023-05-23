@@ -34,7 +34,7 @@ export class MonacoPatchController {
         this.editor!.getModel()!.setValue(contents);
     }
 
-    setPatches(patches: Patch[], direction: PatchDirection) {
+    async setPatches(patches: Patch[], direction: PatchDirection) {
         this.discardPatches();
 
         this.currentPatches = patches;
@@ -53,13 +53,23 @@ export class MonacoPatchController {
             // TODO Don't use because we don't have view zone rulers yet
             // overviewRuler: { color: "red", position: monaco.editor.OverviewRulerLane.Center }
         });
-        transitionInDecorations(this.editor!, decorations, this.decorations);
 
         this.viewZones = gatherViewzones(patches, direction, (textZone: TextZone) => this.createEditor(this.editor.getModel()?.getLanguageId(), textZone), {
             isWholeLine: true,
             className: viewZoneClassName,
         });
-        this.viewZones.forEach(viewZone => viewZone.editorPromise.then(editor => editor.onDidChangeCursorSelection((event) => this.selectEditor(editor, event))));
+
+        for (let viewZone of this.viewZones) {
+            let editor = await viewZone.editorPromise;
+            editor.onDidChangeCursorSelection((event) => this.selectEditor(editor, event));
+            // I think preparing width and height before it's shown helps reduce load time when it is finally shown.
+            editor.layout({
+                width: this.editor.getLayoutInfo().contentWidth,
+                height: 0
+            })
+        }
+
+        transitionInDecorations(this.editor!, decorations, this.decorations);
         transitionInViewzones(this.editor!, this.viewZones);
     }
 
@@ -102,7 +112,7 @@ export class MonacoPatchController {
             let editor = await viewZone.editorPromise;
             // I think preparing width and height before it's shown helps reduce load time when it is finally shown.
             editor.layout({
-                width: this.editor.getLayoutInfo().width,
+                width: this.editor.getLayoutInfo().contentWidth,
                 height: editor.getOption(monaco.editor.EditorOption.fontInfo).lineHeight * editor.getModel()!.getLineCount()
             })
         }
