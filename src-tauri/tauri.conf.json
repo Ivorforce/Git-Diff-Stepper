@@ -27,8 +27,10 @@
         "scope": [
           "$APPDATA/*",
           "$APPDATA/tmlanguages/*",
+          "$APPDATA/themes/*",
           "$RESOURCE/onigasm.wasm",
-          "$RESOURCE/themes/*"
+          "$RESOURCE/themes/*",
+          "$RESOURCE/themes/"
         ]
       },
       "dialog": {

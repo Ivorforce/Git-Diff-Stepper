@@ -12,13 +12,25 @@ It is technically a continuation of [VSCode Git Diff Stepper](https://github.com
 - `cmd / ctrl` + `alt / option` + `left` or `right` arrow keys move through iterations.
 - `f1` to launch the command palette.
 
-## Language Support
+## Custom Language Support
 
+We have support for textmate `.tmLanguage` files!
 
+- Drop a `.tmLanguage` file into `$AppData/de.ivorius.gitdiffstepper/tmlanguages`.
+- The file name should be equivalent to the file ending (e.g. `css.tmLanguage` for `.css` files).
+- Relaunch the App.
 
-We have support for textmate `.tmLanguage` files! Drop a `.tmLanguage` file into `$AppData/de.ivorius.gitdiffstepper/tmlanguages` and relaunch the app. The file name should be equivalent to the file ending (e.g. `css.tmLanguage` for `.css` files).
+To switch the language manually, use the command palette.
 
-To switch to the language manually, use the command palette.
+## Custom Theme Support
+
+We have support for vscode themes! 
+- In VSCode, run the command "Developer: Generate Color Theme From Current Settings".
+- Convert the resulting `.jsonc` file to regular `.json` (removing comments and trailing commas).
+- Drop the file into `$AppData/de.ivorius.gitdiffstepper/themes`.
+- Relaunch the App.
+
+To switch the theme, use the command palette.
 
 ## Dev Setup
 

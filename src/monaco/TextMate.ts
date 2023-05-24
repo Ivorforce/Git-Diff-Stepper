@@ -16,7 +16,7 @@ export async function setup() {
 
     for (const entry of entries) {
         if (!entry.name?.endsWith(".tmLanguage")) {
-            console.log(`Did not read file: ${entry.name}`)
+            console.log(`Did not read tmlanguage file (unknown suffix): ${entry.name}`)
             continue;
         }
 

@@ -6,7 +6,7 @@ import * as TextMate from "./monaco/TextMate";
 import * as Themes from "./monaco/Themes";
 
 await TextMate.setup();
-await Themes.load();
+export const customThemes = await Themes.load();
 
 const root = ReactDOM.createRoot(document.getElementById("root") as HTMLElement);
 root.render(

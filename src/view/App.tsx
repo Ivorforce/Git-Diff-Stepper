@@ -10,6 +10,8 @@ import { useEffect } from 'react';
 import Editor from "@monaco-editor/react";
 import { TextZone } from '../monaco/ViewZones';
 import { addSetLanguageActions } from '../monaco/SetLanguage';
+import { addSetThemeActions, getBackgroundColor } from '../monaco/Themes';
+import { customThemes } from '../main';
 
 loader.config({ monaco });
 
@@ -37,7 +39,7 @@ function createPatchEditor(language: string, textZone: TextZone) {
 
     const secondEditor = <Editor
         onMount={handleEditorDidMount}
-        theme="vs-dark-plus"
+        theme="vs-dark-modern"
 
         // language / value inputs are tracked, "default" versions are only for the initial value
         defaultLanguage={language}
@@ -91,17 +93,20 @@ function App() {
     });
 
     async function handleEditorDidMount(editor: monaco.editor.IStandaloneCodeEditor, monaco: any) {
+        document.body.style.backgroundColor = getBackgroundColor(editor);
+
         let logController_ = new MonacoLogController(editor, createPatchEditor);
         logController = logController_;
 
         addSetLanguageActions(editor);
+        addSetThemeActions(editor, customThemes, () => document.body.style.backgroundColor = getBackgroundColor(editor));
     }
 
     return <Editor
         height="calc(100vh - 30px)"  // TODO This shouldn't be here but otherwise the size is 5px
         width="calc(100vw - 30px)"
         onMount={handleEditorDidMount}
-        theme="vs-dark-plus"
+        theme="vs-dark-modern"
         options={{
             minimap: { enabled: false },
             renderLineHighlight: "none",
