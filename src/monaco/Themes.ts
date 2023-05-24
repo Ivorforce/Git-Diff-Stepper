@@ -21,7 +21,7 @@ export type IMonacoThemeRule = monaco.editor.ITokenThemeRule[]
 // copied from here https://github.com/Nishkalkashyap/monaco-vscode-textmate-theme-converter
 // running it from there apparently doesn't work. No idea why; probably because it includes a bunch of other libraries that
 // aren't tauri compatible.
-export function convertTheme(theme: IVSCodeTheme): monaco.editor.IStandaloneThemeData {
+export function convert(theme: IVSCodeTheme): monaco.editor.IStandaloneThemeData {
     const monacoThemeRule: IMonacoThemeRule = [];
     const returnTheme: monaco.editor.IStandaloneThemeData = {
         inherit: false,
@@ -65,9 +65,9 @@ export function convertTheme(theme: IVSCodeTheme): monaco.editor.IStandaloneThem
     return returnTheme;
 }
 
-export async function loadThemes() {
+export async function load() {
     const vs_dark_plus = await readTextFile("themes/vs-dark-plus.json", { dir: BaseDirectory.Resource });
     const parsed: IVSCodeTheme = JSON.parse(vs_dark_plus);
-    const converted = convertTheme(parsed);
+    const converted = convert(parsed);
     monaco.editor.defineTheme('vs-dark-plus', converted);
 }

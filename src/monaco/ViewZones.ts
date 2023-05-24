@@ -1,7 +1,7 @@
 import * as monaco from 'monaco-editor';
-import { transition } from './Repeater';
-import { smoothstep_one } from './Mafs';
-import Patch, { PatchDirection } from './Patches';
+import { transition } from '../util/Repeater';
+import { smoothstep_one } from '../util/Mafs';
+import Patch, { PatchDirection } from '../util/Patches';
 
 export class TextZone implements monaco.editor.IViewZone {
     domNode: HTMLElement;

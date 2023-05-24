@@ -4,12 +4,12 @@ import './App.css';
 
 import * as monaco from 'monaco-editor';
 import { loader } from '@monaco-editor/react';
-import { MonacoLogController, FileInfo } from './MonacoLogController';
+import { MonacoLogController, FileInfo } from '../monaco/MonacoLogController';
 import { EventCallback, emit, listen } from '@tauri-apps/api/event'
 import { useEffect } from 'react';
 import Editor from "@monaco-editor/react";
-import { TextZone } from './ViewZones';
-import { addSetLanguageActions } from './SetLanguage';
+import { TextZone } from '../monaco/ViewZones';
+import { addSetLanguageActions } from '../monaco/SetLanguage';
 
 loader.config({ monaco });
 

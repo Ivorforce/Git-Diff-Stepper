@@ -1,5 +1,5 @@
 import { TextZone, postEditPosition, transitionOutViewzones } from "./ViewZones";
-import Patch, { PatchDirection } from "./Patches";
+import Patch, { PatchDirection } from "../util/Patches";
 import * as monaco from 'monaco-editor';
 
 export function gatherDecorations(patches: Patch[], direction: PatchDirection, options: monaco.editor.IModelDecorationOptions): monaco.editor.IModelDeltaDecoration[] {

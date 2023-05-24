@@ -1,7 +1,7 @@
 import * as monaco from 'monaco-editor';
 import { MonacoPatchController } from './MonacoPatchController';
 import { invoke } from '@tauri-apps/api/tauri'
-import { PatchDirection, parsePatches } from './Patches';
+import { PatchDirection, parsePatches } from '../util/Patches';
 import { writeTextFile } from '@tauri-apps/api/fs';
 
 export class FileInfo {

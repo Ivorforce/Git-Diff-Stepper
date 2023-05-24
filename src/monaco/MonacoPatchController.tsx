@@ -1,5 +1,5 @@
 import * as monaco from 'monaco-editor';
-import Patch, { PatchDirection, swapPatchDirection } from './Patches';
+import Patch, { PatchDirection, swapPatchDirection } from '../util/Patches';
 import { TextZone, destroyViewzones, gatherViewzones, insertInterspersedText, insertDecorationsPostEdit, transitionInViewzones, transitionOutViewzones } from './ViewZones';
 import { deleteDecoratedText, gatherDecorations, insertViewzonesPostEdit, transitionInDecorations, transitionOutDecorations } from './Decorations';
 
