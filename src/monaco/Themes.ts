@@ -89,20 +89,20 @@ export async function load(): Promise<string[]> {
     return addedThemes;
 }
 
-export function addSetThemeActions(editor: monaco.editor.IStandaloneCodeEditor, themes: string[], callback?: () => void) {
+export function addSetThemeActions(editor: monaco.editor.IStandaloneCodeEditor, themes: string[], callback?: (theme: string, editor: monaco.editor.ICodeEditor) => void) {
     for (let themeID of themes) {
         editor.addAction({
             id: `setTheme-${themeID}`,
             label: `Set theme to ${themeID}`,
             run: (editor: monaco.editor.ICodeEditor, arg: string) => {
                 monaco.editor.setTheme(themeID);
-                callback?.();
+                callback?.(themeID, editor);
             }
         });
     }
 }
 
-export function getBackgroundColor(editor: monaco.editor.IStandaloneCodeEditor): string {
+export function getBackgroundColor(editor: monaco.editor.ICodeEditor): string {
     return getComputedStyle(editor.getDomNode()!)
         .getPropertyValue('--vscode-editor-background')
 }

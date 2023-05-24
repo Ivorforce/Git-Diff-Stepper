@@ -1,9 +1,8 @@
-import React, { createRef, useRef } from 'react';
+import React from 'react';
 import ReactDOM from "react-dom/client";
 import './App.css';
 
 import * as monaco from 'monaco-editor';
-import { loader } from '@monaco-editor/react';
 import { MonacoLogController, FileInfo } from '../monaco/MonacoLogController';
 import { EventCallback, emit, listen } from '@tauri-apps/api/event'
 import { useEffect } from 'react';
@@ -11,9 +10,7 @@ import Editor from "@monaco-editor/react";
 import { TextZone } from '../monaco/ViewZones';
 import { addSetLanguageActions } from '../monaco/SetLanguage';
 import { addSetThemeActions, getBackgroundColor } from '../monaco/Themes';
-import { customThemes } from '../main';
-
-loader.config({ monaco });
+import { currentTheme, customThemes, onUpdateTheme } from '../main';
 
 function listenReact<T>(name: string, fun: EventCallback<T>) {
     useEffect(() => {
@@ -39,7 +36,8 @@ function createPatchEditor(language: string, textZone: TextZone) {
 
     const secondEditor = <Editor
         onMount={handleEditorDidMount}
-        theme="vs-dark-modern"
+
+        theme={currentTheme}
 
         // language / value inputs are tracked, "default" versions are only for the initial value
         defaultLanguage={language}
@@ -93,20 +91,23 @@ function App() {
     });
 
     async function handleEditorDidMount(editor: monaco.editor.IStandaloneCodeEditor, monaco: any) {
-        document.body.style.backgroundColor = getBackgroundColor(editor);
+        // This shouldnt be needed, but it needs to be run once to update the background color for the first time.
+        onUpdateTheme(currentTheme, editor);
 
         let logController_ = new MonacoLogController(editor, createPatchEditor);
         logController = logController_;
 
         addSetLanguageActions(editor);
-        addSetThemeActions(editor, customThemes, () => document.body.style.backgroundColor = getBackgroundColor(editor));
+        addSetThemeActions(editor, customThemes, onUpdateTheme);
     }
 
     return <Editor
         height="calc(100vh - 30px)"  // TODO This shouldn't be here but otherwise the size is 5px
         width="calc(100vw - 30px)"
+
+        theme={currentTheme}
+
         onMount={handleEditorDidMount}
-        theme="vs-dark-modern"
         options={{
             minimap: { enabled: false },
             renderLineHighlight: "none",
